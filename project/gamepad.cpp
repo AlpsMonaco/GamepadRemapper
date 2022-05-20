@@ -19,8 +19,8 @@ void Gamepad::Start()
 {
     thread_ = std::thread(
         [&]() -> void {
-            XINPUT_STATE state { 0, { 0, 0, 0, 0, 0, 0, 0 } };
-            DWORD lastPacketNumber = -1;
+            static XINPUT_STATE state { 0, { 0, 0, 0, 0, 0, 0, 0 } };
+            static DWORD lastPacketNumber = -1;
             for (;;)
                 {
                     if (stop_)
@@ -28,7 +28,10 @@ void Gamepad::Start()
                     if (XInputGetState(0, &state) == ERROR_SUCCESS)
                         {
                             if (lastPacketNumber != state.dwPacketNumber)
-                                handler_(state.Gamepad);
+                                {
+                                    handler_(state.Gamepad);
+                                    lastPacketNumber = state.dwPacketNumber;
+                                }
                         }
                     std::this_thread::sleep_for(std::chrono::milliseconds(sampleTime_));
                 }
