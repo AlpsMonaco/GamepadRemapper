@@ -10,8 +10,11 @@ class KeyboardHandler
 {
 public:
     using KeyCode = DWORD;
-    using KeyStatus = WPARAM;
-    using Handler = std::function<void(KeyCode, KeyStatus)>;
+    using KeyState = WPARAM;
+    using Handler = std::function<void(KeyCode, KeyState)>;
+
+    static constexpr KeyState KeyPressed = 256;
+    static constexpr KeyState KeyReleased = 257;
 
     static void Start();
     static void Stop();
