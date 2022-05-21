@@ -1,10 +1,10 @@
 #include "gamepad.h"
 
-Gamepad::Gamepad(Gamepad::SampleTime sampleTime, unsigned long xInputIndex)
-    : sampleTime_(sampleTime)
-    , handler_([](const Gamepad::GamepadState&) -> void {})
-    , stop_(false)
-    , xInputIndex_(xInputIndex)
+Gamepad::Gamepad(Gamepad::SampleTime sampleTime,
+                 unsigned long xInputIndex) : sampleTime_(sampleTime),
+                                              handler_([](const Gamepad::GamepadState&) -> void {}),
+                                              stop_(false),
+                                              xInputIndex_(xInputIndex)
 {
 }
 

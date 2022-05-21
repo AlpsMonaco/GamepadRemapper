@@ -3,11 +3,11 @@
 
 #include <Windows.h>
 #include <XInput.h>
-#pragma comment(lib, "Xinput.lib")
-
 #include <atomic>
 #include <functional>
 #include <thread>
+
+#pragma comment(lib, "Xinput.lib")
 
 class Gamepad
 {

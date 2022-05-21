@@ -1,30 +1,22 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget* parent)
-    : QMainWindow(parent)
-    , ui_(std::make_unique<Ui::MainWindow>())
-    , gamepad_(10)
-    , isHomeButtonPressed_(false)
-    , config_()
-    , gamepadIndex_(0)
+MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent),
+                                          ui_(std::make_unique<Ui::MainWindow>()),
+                                          gamepad_(10),
+                                          isHomeButtonPressed_(false),
+                                          config_(),
+                                          gamepadIndex_(0)
 {
     ui_->setupUi(this);
-    connect(this,
-        SIGNAL(AppendText(QString)),
-        this, SLOT(OnAppendText(QString)));
-    connect(ui_->showKbvCheckBox,
-        SIGNAL(stateChanged(int)),
-        this,
-        SLOT(OnShowKbvCheckBoxStateChanged(int)));
-    connect(ui_->showPadValueCheckBox,
-        SIGNAL(stateChanged(int)),
-        this,
-        SLOT(OnShowPadValueCheckBoxStateChanged(int)));
-    connect(ui_->comboBox,
-        SIGNAL(activated(int)),
-        this,
-        SLOT(OnComboBoxActivated(int)));
+    connect(this, SIGNAL(AppendText(QString)),
+            this, SLOT(OnAppendText(QString)));
+    connect(ui_->showKbvCheckBox, SIGNAL(stateChanged(int)),
+            this, SLOT(OnShowKbvCheckBoxStateChanged(int)));
+    connect(ui_->showPadValueCheckBox, SIGNAL(stateChanged(int)),
+            this, SLOT(OnShowPadValueCheckBoxStateChanged(int)));
+    connect(ui_->comboBox, SIGNAL(activated(int)),
+            this, SLOT(OnComboBoxActivated(int)));
 
     InitKeyboardHandler();
     InitGamepadHandler();
@@ -92,23 +84,21 @@ inline QString GetGamepadStateText(const Gamepad::GamepadState& state)
         buttonStr.append("X ");
     if ((state.wButtons & XINPUT_GAMEPAD_Y) == XINPUT_GAMEPAD_Y)
         buttonStr.append("Y ");
-    return str
-        .arg(buttonStr.size() > 0 ? buttonStr : "null",
-            QString("LX:%1 LY:%2 RX:%3 RY:%4 LT:%5 RT:%6")
-                .arg(state.sThumbLX)
-                .arg(state.sThumbLY)
-                .arg(state.sThumbRX)
-                .arg(state.sThumbRY)
-                .arg(state.bLeftTrigger)
-                .arg(state.bRightTrigger));
+    return str.arg(buttonStr.size() > 0 ? buttonStr : "null",
+                   QString("LX:%1 LY:%2 RX:%3 RY:%4 LT:%5 RT:%6")
+                       .arg(state.sThumbLX)
+                       .arg(state.sThumbLY)
+                       .arg(state.sThumbRX)
+                       .arg(state.sThumbRY)
+                       .arg(state.bLeftTrigger)
+                       .arg(state.bRightTrigger));
 }
 
 void MainWindow::InitGamepadHandler()
 {
-    gamepad_.SetHandler([&](const Gamepad::GamepadState& state) -> void
-        {
+    gamepad_.SetHandler([&](const Gamepad::GamepadState& state) -> void {
         if (config_.isShowPadValueChecked)
-                emit AppendText(GetGamepadStateText(state));
+            emit AppendText(GetGamepadStateText(state));
         if (!isHomeButtonPressed_)
             return;
         static bool isEventTriggered = false;
@@ -118,7 +108,7 @@ void MainWindow::InitGamepadHandler()
                     {
                         isEventTriggered = true;
                         keybd_event(0, 0x3b, KEYEVENTF_SCANCODE, 0);
-                        keybd_event(0, 0x3b, KEYEVENTF_SCANCODE|KEYEVENTF_KEYUP, 0);
+                        keybd_event(0, 0x3b, KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP, 0);
                     }
             }
         else if ((state.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) == XINPUT_GAMEPAD_DPAD_DOWN)
@@ -127,29 +117,31 @@ void MainWindow::InitGamepadHandler()
                     {
                         isEventTriggered = true;
                         keybd_event(0, 0x3d, KEYEVENTF_SCANCODE, 0);
-                        keybd_event(0, 0x3d, KEYEVENTF_SCANCODE|KEYEVENTF_KEYUP, 0);
+                        keybd_event(0, 0x3d, KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP, 0);
                     }
             }
         else
             {
                 if (isEventTriggered)
                     isEventTriggered = false;
-            } });
+            }
+    });
     gamepad_.Start();
 }
 
 void MainWindow::InitKeyboardHandler()
 {
-    KeyboardHandler::SetHandler([&](KeyboardHandler::KeyCode keyCode,
-                                    KeyboardHandler::KeyState keyState) -> void
-        {
-        if (keyCode == 0x07)
-            isHomeButtonPressed_ = keyState == KeyboardHandler::KeyPressed ? true : false;
-        if (config_.isShowKbvChecked)
-            {
-                static QString fmt = "keyboard:key_code:%1 key_state:%2";
-                emit AppendText(fmt.arg(keyCode).arg(keyState == KeyboardHandler::KeyPressed ? "pressed" : "released"));
-            } });
+    KeyboardHandler::SetHandler(
+        [&](KeyboardHandler::KeyCode keyCode, KeyboardHandler::KeyState keyState) -> void {
+            if (keyCode == 0x07)
+                isHomeButtonPressed_ = keyState == KeyboardHandler::KeyPressed ? true : false;
+            if (config_.isShowKbvChecked)
+                {
+                    static QString fmt = "keyboard:key_code:%1 key_state:%2";
+                    emit AppendText(fmt.arg(keyCode).arg(
+                        keyState == KeyboardHandler::KeyPressed ? "pressed" : "released"));
+                }
+        });
     KeyboardHandler::Start();
 }
 
