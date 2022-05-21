@@ -1,7 +1,7 @@
 #include "keyboard.h"
 
-KeyboardHandler::Handler KeyboardHandler::handler_ = [](KeyCode keyCode,
-                                                        KeyState keyStatus) -> void {};
+KeyboardHandler::Handler KeyboardHandler::handler_ = [](KeyCode,
+                                                        KeyState) -> void {};
 
 HHOOK KeyboardHandler::hook_ = NULL;
 
