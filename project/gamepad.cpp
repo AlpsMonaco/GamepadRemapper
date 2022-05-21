@@ -1,9 +1,10 @@
 #include "gamepad.h"
 
-Gamepad::Gamepad(Gamepad::SampleTime sampleTime)
+Gamepad::Gamepad(Gamepad::SampleTime sampleTime, unsigned long xInputIndex)
     : sampleTime_(sampleTime)
     , handler_([](const Gamepad::GamepadState&) -> void {})
     , stop_(false)
+    , xInputIndex_(xInputIndex)
 {
 }
 
@@ -13,19 +14,29 @@ Gamepad::~Gamepad()
     Wait();
 }
 
+void Gamepad::SwitchIndex(unsigned long xInputIndex)
+{
+    if (xInputIndex == xInputIndex_)
+        return;
+    Stop();
+    Wait();
+    xInputIndex_ = xInputIndex;
+    Start();
+}
+
 void Gamepad::SetHandler(const Gamepad::Handler& handler) { handler_ = handler; }
 
 void Gamepad::Start()
 {
     thread_ = std::thread(
         [&]() -> void {
-            static XINPUT_STATE state { 0, { 0, 0, 0, 0, 0, 0, 0 } };
-            static DWORD lastPacketNumber = -1;
+            XINPUT_STATE state { 0, { 0, 0, 0, 0, 0, 0, 0 } };
+            DWORD lastPacketNumber = -1;
             for (;;)
                 {
                     if (stop_)
                         break;
-                    if (XInputGetState(0, &state) == ERROR_SUCCESS)
+                    if (XInputGetState(xInputIndex_, &state) == ERROR_SUCCESS)
                         {
                             if (lastPacketNumber != state.dwPacketNumber)
                                 {

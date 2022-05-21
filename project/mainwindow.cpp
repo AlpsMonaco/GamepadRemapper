@@ -3,40 +3,50 @@
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    , ui_(std::make_unique<Ui::MainWindow>())
     , gamepad_(10)
     , isHomeButtonPressed_(false)
     , config_()
+    , gamepadIndex_(0)
 {
-    ui->setupUi(this);
-    connect(this, SIGNAL(AppendText(QString)), this, SLOT(OnAppendText(QString)));
-    connect(ui->showKbvCheckBox,
+    ui_->setupUi(this);
+    connect(this,
+        SIGNAL(AppendText(QString)),
+        this, SLOT(OnAppendText(QString)));
+    connect(ui_->showKbvCheckBox,
         SIGNAL(stateChanged(int)),
         this,
         SLOT(OnShowKbvCheckBoxStateChanged(int)));
-    connect(ui->showPadValueCheckBox,
+    connect(ui_->showPadValueCheckBox,
         SIGNAL(stateChanged(int)),
         this,
         SLOT(OnShowPadValueCheckBoxStateChanged(int)));
+    connect(ui_->comboBox,
+        SIGNAL(activated(int)),
+        this,
+        SLOT(OnComboBoxActivated(int)));
+
     InitKeyboardHandler();
     InitGamepadHandler();
     config_.ReadConfig();
     if (config_.isShowKbvChecked)
-        ui->showKbvCheckBox->setChecked(true);
+        ui_->showKbvCheckBox->setChecked(true);
     if (config_.isShowPadValueChecked)
-        ui->showPadValueCheckBox->setChecked(true);
+        ui_->showPadValueCheckBox->setChecked(true);
+    ui_->comboBox->setCurrentIndex(config_.xInputIndex);
+    emit ui_->comboBox->activated(config_.xInputIndex);
+    gamepadIndex_ = config_.xInputIndex;
 }
 
 MainWindow::~MainWindow()
 {
     KeyboardHandler::Stop();
     config_.SaveConfig();
-    delete ui;
 }
 
 void MainWindow::OnAppendText(const QString& string)
 {
-    ui->plainTextEdit->appendPlainText(string);
+    ui_->plainTextEdit->appendPlainText(string);
 }
 
 void MainWindow::OnShowKbvCheckBoxStateChanged(int state)
@@ -139,4 +149,11 @@ void MainWindow::InitKeyboardHandler()
             }
     });
     KeyboardHandler::Start();
+}
+
+void MainWindow::OnComboBoxActivated(int index)
+{
+    config_.xInputIndex = index;
+    gamepad_.SwitchIndex(index);
+    emit AppendText(QString("select gamepad #%1").arg(index + 1));
 }

@@ -16,9 +16,10 @@ public:
     using GamepadState = XINPUT_GAMEPAD;
     using Handler = std::function<void(const GamepadState&)>;
 
-    Gamepad(SampleTime sampleTime = 10);
+    Gamepad(SampleTime sampleTime = 10, unsigned long xInputIndex = 0);
     ~Gamepad();
 
+    void SwitchIndex(unsigned long xInputIndex);
     void SetHandler(const Handler& handler);
     void Start();
     void Stop();
@@ -29,6 +30,7 @@ protected:
     Handler handler_;
     std::atomic_bool stop_;
     std::thread thread_;
+    unsigned long xInputIndex_;
 };
 
 #endif // GAMEPAD_H
