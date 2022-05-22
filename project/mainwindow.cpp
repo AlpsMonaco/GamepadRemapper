@@ -9,6 +9,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent),
                                           gamepadIndex_(0)
 {
     ui_->setupUi(this);
+
+    Gamepad::SetGamepadInfoHandler([&](const char* s) -> void
+        { emit AppendText(QString("Gamepad:") + s); });
     connect(this, SIGNAL(AppendText(QString)),
             this, SLOT(OnAppendText(QString)));
     connect(ui_->showKbvCheckBox, SIGNAL(stateChanged(int)),

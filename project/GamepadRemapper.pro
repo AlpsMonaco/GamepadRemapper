@@ -28,3 +28,16 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../thirdparty/lib/ -lfmt
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../thirdparty/lib/ -lfmtd
+
+INCLUDEPATH += $$PWD/../thirdparty/include
+DEPENDPATH += $$PWD/../thirdparty/include
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../thirdparty/lib/libfmt.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../thirdparty/lib/libfmtd.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../thirdparty/lib/fmt.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../thirdparty/lib/fmtd.lib
+
+RC_ICONS = GamepadRemapper.ico

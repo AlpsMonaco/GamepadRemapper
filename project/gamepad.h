@@ -15,6 +15,7 @@ public:
     using SampleTime = unsigned long long;
     using GamepadState = XINPUT_GAMEPAD;
     using Handler = std::function<void(const GamepadState&)>;
+    using GamdpadInfoHandler = std::function<void(const char*)>;
 
     Gamepad(SampleTime sampleTime = 10, unsigned long xInputIndex = 0);
     ~Gamepad();
@@ -24,6 +25,8 @@ public:
     void Start();
     void Stop();
     void Wait();
+
+    static void SetGamepadInfoHandler(const GamdpadInfoHandler&);
 
 protected:
     SampleTime sampleTime_;
