@@ -54,7 +54,10 @@ void Gamepad::Start()
         [&]() -> void {
             HANDLE_GAMEPAD_INFO("gamepad thread start");
             XINPUT_STATE state { 0, { 0, 0, 0, 0, 0, 0, 0 } };
-            DWORD lastPacketNumber = -1;
+            static constexpr DWORD maxPacketNumber = (~0);
+            DWORD lastPacketNumberList[XUSER_MAX_COUNT];
+            for (size_t i = 0; i < XUSER_MAX_COUNT; i++)
+                lastPacketNumberList[i] = maxPacketNumber;
             XInputIndex xInputIndex = 0;
             for (;;)
                 {
@@ -64,10 +67,10 @@ void Gamepad::Start()
                         {
                             if (XInputGetState(xInputIndex, &state) == ERROR_SUCCESS)
                                 {
-                                    if (lastPacketNumber != state.dwPacketNumber)
+                                    if (lastPacketNumberList[xInputIndex] != state.dwPacketNumber)
                                         {
                                             handler_(xInputIndex, state.Gamepad);
-                                            lastPacketNumber = state.dwPacketNumber;
+                                            lastPacketNumberList[xInputIndex] = state.dwPacketNumber;
                                         }
                                 }
                         }
