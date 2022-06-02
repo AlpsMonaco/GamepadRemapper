@@ -14,13 +14,14 @@ class Gamepad
 public:
     using SampleTime = unsigned long long;
     using GamepadState = XINPUT_GAMEPAD;
-    using Handler = std::function<void(const GamepadState&)>;
+    using XInputIndex = unsigned long;
+    using Handler = std::function<void(XInputIndex, const GamepadState&)>;
     using GamdpadInfoHandler = std::function<void(const char*)>;
 
-    Gamepad(SampleTime sampleTime = 10, unsigned long xInputIndex = 0);
+    Gamepad(SampleTime sampleTime = 10);
     ~Gamepad();
 
-    void SwitchIndex(unsigned long xInputIndex);
+    //    void SwitchIndex(unsigned long xInputIndex);
     void SetHandler(const Handler& handler);
     void Start();
     void Stop();
@@ -33,7 +34,6 @@ protected:
     Handler handler_;
     std::atomic_bool stop_;
     std::thread thread_;
-    unsigned long xInputIndex_;
 };
 
 #endif // GAMEPAD_H

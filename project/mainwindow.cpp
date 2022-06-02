@@ -10,16 +10,13 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent),
 {
     ui_->setupUi(this);
 
-    Gamepad::SetGamepadInfoHandler([&](const char* s) -> void
-        { emit AppendText(QString("Gamepad:") + s); });
+    Gamepad::SetGamepadInfoHandler([&](const char* s) -> void { emit AppendText(QString("Gamepad:") + s); });
     connect(this, SIGNAL(AppendText(QString)),
             this, SLOT(OnAppendText(QString)));
     connect(ui_->showKbvCheckBox, SIGNAL(stateChanged(int)),
             this, SLOT(OnShowKbvCheckBoxStateChanged(int)));
     connect(ui_->showPadValueCheckBox, SIGNAL(stateChanged(int)),
             this, SLOT(OnShowPadValueCheckBoxStateChanged(int)));
-    connect(ui_->comboBox, SIGNAL(activated(int)),
-            this, SLOT(OnComboBoxActivated(int)));
 
     InitKeyboardHandler();
     InitGamepadHandler();
@@ -28,8 +25,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent),
         ui_->showKbvCheckBox->setChecked(true);
     if (config_.isShowPadValueChecked)
         ui_->showPadValueCheckBox->setChecked(true);
-    ui_->comboBox->setCurrentIndex(config_.xInputIndex);
-    emit ui_->comboBox->activated(config_.xInputIndex);
     gamepadIndex_ = config_.xInputIndex;
 }
 
@@ -54,9 +49,9 @@ void MainWindow::OnShowPadValueCheckBoxStateChanged(int state)
     config_.isShowPadValueChecked = bool(state);
 }
 
-inline QString GetGamepadStateText(const Gamepad::GamepadState& state)
+inline QString GetGamepadStateText(Gamepad::XInputIndex index, const Gamepad::GamepadState& state)
 {
-    static QString str = "button pressed:%1\naxis:%2";
+    static QString str = "Gamepad#%3:\nbutton pressed:%1\naxis:%2";
     static QString buttonStr;
     buttonStr.resize(0);
     if ((state.wButtons & XINPUT_GAMEPAD_DPAD_UP) == XINPUT_GAMEPAD_DPAD_UP)
@@ -94,14 +89,15 @@ inline QString GetGamepadStateText(const Gamepad::GamepadState& state)
                        .arg(state.sThumbRX)
                        .arg(state.sThumbRY)
                        .arg(state.bLeftTrigger)
-                       .arg(state.bRightTrigger));
+                       .arg(state.bRightTrigger))
+        .arg(index);
 }
 
 void MainWindow::InitGamepadHandler()
 {
-    gamepad_.SetHandler([&](const Gamepad::GamepadState& state) -> void {
+    gamepad_.SetHandler([&](Gamepad::XInputIndex xInputIndex, const Gamepad::GamepadState& state) -> void {
         if (config_.isShowPadValueChecked)
-            emit AppendText(GetGamepadStateText(state));
+            emit AppendText(GetGamepadStateText(xInputIndex, state));
         if (!isHomeButtonPressed_)
             return;
         static bool isEventTriggered = false;
@@ -151,6 +147,5 @@ void MainWindow::InitKeyboardHandler()
 void MainWindow::OnComboBoxActivated(int index)
 {
     config_.xInputIndex = index;
-    gamepad_.SwitchIndex(index);
     emit AppendText(QString("select gamepad #%1").arg(index + 1));
 }

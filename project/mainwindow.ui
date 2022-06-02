@@ -43,30 +43,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="comboBox">
-        <item>
-         <property name="text">
-          <string>手柄1</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>手柄2</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>手柄3</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>手柄4</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
